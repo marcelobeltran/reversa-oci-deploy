@@ -5,6 +5,8 @@ credenciales, OCIDs del cliente ni direcciones de acceso en este documento.
 
 - Repositorio GitHub nuevo creado: marcelobeltran/reversa-oci-deploy.
 - Terraform: `validate` correcto con proveedor oracle/oci 9.13.0.
+- GitHub Actions: primera ejecución completa correcta (44164215383).
+- Stack `reversa-stack` creado en Resource Manager, estado Active; todavía sin Apply.
 - Portal recuperado: 33 pruebas ejecutadas, correctas; una omitida en Windows.
 - Scripts de shell: sintaxis verificada con Bash.
 - Paquete Resource Manager generado por lista explícita.

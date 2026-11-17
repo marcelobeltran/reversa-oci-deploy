@@ -6,6 +6,7 @@ User=opc
 Group=opc
 Environment=HOME=/home/opc
 Environment=REVERSA_PROJECTS=/home/opc/proyectos
+Environment=REVERSA_INIT_COMMAND=/usr/local/bin/reversa-project-init
 Environment=REVERSA_PORTAL_SECRET=/home/opc/.config/reversa-portal/session.key
 ExecStart=/opt/reversa/venv/bin/gunicorn --chdir /opt/reversa/portal --bind 127.0.0.1:4100 --workers 2 --timeout 180 app:app
 Restart=on-failure

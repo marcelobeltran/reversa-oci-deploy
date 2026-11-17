@@ -93,8 +93,19 @@ def main():
         checkpoint['web'] = {'username':'reversa', 'password':secrets.token_urlsafe(32)}
         stash()
     web_secret = store_secret('web', json.dumps(checkpoint['web']))
+    compute = oci.core.ComputeClient(config, **kwargs)
+    identity = oci.identity.IdentityClient(config, **kwargs)
+    images = oci.pagination.list_call_get_all_results(
+        compute.list_images, compartment_id=out['compartments']['app'],
+        operating_system='Canonical Ubuntu', operating_system_version='24.04',
+        shape='VM.Standard.E5.Flex', sort_by='TIMECREATED', sort_order='DESC').data
+    images = [image for image in images if image.lifecycle_state == 'AVAILABLE']
+    domains = identity.list_availability_domains(config['tenancy']).data
+    if not images or not domains:
+        raise RuntimeError('No hay imagen Ubuntu 24.04 E5 disponible o AD visible')
     save(args.variables, {'genai_api_key_ocid':key['id'], 'genai_secret_ocid':genai_secret,
-                         'web_secret_ocid':web_secret})
+                         'web_secret_ocid':web_secret, 'image_ocid':images[0].id,
+                         'availability_domain':domains[0].name})
     print('Credenciales creadas y guardadas en Vault; variables sin secretos en '+str(args.variables))
     print('La clave GenAI vence en 90 días: renovar una de sus dos claves antes de esa fecha.')
 

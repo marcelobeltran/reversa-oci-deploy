@@ -38,6 +38,19 @@ Requisitos: permisos de administración de los recursos descritos, Terraform
 autenticada. Se necesita Chicago o una región donde el modelo elegido esté
 disponible. Configurar `home_region` según el tenant, no asumir que coincide.
 
+Para ejecutar ambas fases de forma seguida, tras completar `tenant.tfvars` e
+instalar el SDK OCI en un venv:
+
+```bash
+python3 scripts/deploy.py --vars tenant.tfvars --apply
+```
+
+Usa una sesión OCI existente. Selecciona automáticamente una imagen Ubuntu 24.04
+compatible con E5 y la primera AD; la capacidad real se comprueba al crear la VM.
+La opción `--profile PERFIL --auth security_token` permite reutilizar una sesión
+temporal. Este comando administra su propio estado local y no se debe ejecutar
+contra recursos ya administrados por otro estado o Resource Manager.
+
 1. Clonar este repositorio y copiar `tenant.example.tfvars` a
    `tenant.tfvars`, completando tenancy y home region.
 2. Crear el paquete y validar:
@@ -78,10 +91,11 @@ disponible. Configurar `home_region` según el tenant, no asumir que coincide.
    terraform apply -var-file=tenant.tfvars -var-file=local/runtime.auto.tfvars.json
    ```
 
-5. Seleccionar una imagen **Ubuntu 24.04 x86_64** compatible con
-   `VM.Standard.E5.Flex`, en la región elegida. Completar `image_ocid` y
-   `availability_domain` en `tenant.tfvars`. No reutilizar OCIDs de otro tenant o
-   región. Si se necesita administración SSH, configurar una IP /32 en
+5. El script selecciona una imagen **Ubuntu 24.04 x86_64** compatible con
+   `VM.Standard.E5.Flex` y una AD y las guarda en el JSON local. Revisarlas antes
+   del Plan. Para otra shape, seleccionar imagen/AD compatibles explícitamente.
+   No reutilizar OCIDs de otro tenant o región. Si se necesita administración SSH,
+   configurar una IP /32 en
    `bastion_allowed_cidrs` y una clave pública propia: se crea OCI Bastion con
    sesiones temporales, no una VM bastión pública.
 

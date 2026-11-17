@@ -60,6 +60,18 @@ resource "oci_core_security_list" "empty" {
   compartment_id = local.network_compartment
   vcn_id         = oci_core_vcn.reversa.id
   display_name   = "${var.prefix}-empty-use-nsg"
+  dynamic "egress_security_rules" {
+    for_each = length(var.bastion_allowed_cidrs) > 0 ? [1] : []
+    content {
+      destination = var.private_cidr
+      protocol    = "6"
+      description = "Bastion service endpoint to SSH in private app subnet"
+      tcp_options {
+        min = 22
+        max = 22
+      }
+    }
+  }
 }
 resource "oci_core_subnet" "public" {
   compartment_id             = local.network_compartment
