@@ -1,0 +1,15 @@
+.terraform/
+*.tfstate*
+*.tfplan
+*.tfvars
+!*.example.tfvars
+*.auto.tfvars.json
+.env*
+*.pem
+*.key
+*.p12
+*.zip
+.tools/
+__pycache__/
+local/
+*.private.*

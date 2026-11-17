@@ -1,0 +1,26 @@
+name: Validar Reversa OCI
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.14.0'
+      - run: pip install -r runtime/requirements.txt
+      - run: python scripts/package.py
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate
+      - run: bash -n runtime/install.sh && bash -n runtime/certificate.sh
+      - run: python -m unittest discover -s runtime/portal -p 'test_*.py' -v
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reversa-resource-manager
+          path: reversa-resource-manager.zip

@@ -1,0 +1,7 @@
+[Unit]
+Description=Reversa emisión y renovación Let's Encrypt IP
+After=nginx.service network-online.target
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/reversa/certificate.sh
+TimeoutStartSec=300

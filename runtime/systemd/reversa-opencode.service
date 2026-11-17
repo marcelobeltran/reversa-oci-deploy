@@ -1,0 +1,17 @@
+[Unit]
+Description=Reversa OpenCode OCI directo
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+ExecStart=/opt/reversa/venv/bin/python /opt/reversa/start-opencode.py
+Restart=on-failure
+RestartSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/opc
+[Install]
+WantedBy=multi-user.target

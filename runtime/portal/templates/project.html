@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ name }} — Proyecto Reversa</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body><main>
+<nav><strong>Reversa</strong><a href="{{ url_for('home') }}">Proyectos</a><a href="/">OpenCode</a></nav>
+<header><p class="eyebrow">Espacio del proyecto</p><h1>{{ name }}</h1><p>Carga los archivos de entrada y consulta las dos etapas de documentación.</p></header>
+{% for category, message in get_flashed_messages(with_categories=true) %}<p class="notice {{ category }}" role="status">{{ message }}</p>{% endfor %}
+<nav class="project-tabs" aria-label="Secciones del proyecto">
+{% for key, label in [('resumen', 'Proyecto y cargas'), ('analisis', 'Análisis (Markdown)'), ('html', 'Documentación (HTML)'), ('archivos', 'Todos los resultados')] %}<a href="{{ url_for('project', name=name, vista=key) }}"{% if view == key %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+</nav>
+{% if overview %}
+<div class="stage-grid">
+<section><p class="eyebrow">Etapa 1 · Análisis</p><h2>Documentación Markdown</h2><p>Consulta las especificaciones y los análisis generados por Reversa, sin esperar al sitio HTML.</p><p class="hint"><code>_reversa_sdd</code> · {{ 'Hay archivos para explorar' if has_analysis else 'Todavía no hay archivos' }}</p><a class="button" href="{{ url_for('project', name=name, vista='analisis') }}">Ver análisis Markdown</a></section>
+<section><p class="eyebrow">Etapa 2 · Presentación</p><h2>Documentación HTML</h2><p>Navega por el sitio que se genera a partir del análisis, dentro de este proyecto.</p><p class="hint"><code>_reversa_docs</code> · {{ 'Hay archivos para explorar' if has_html else 'Todavía no se ha generado' }}</p><a class="button" href="{{ url_for('project', name=name, vista='html') }}">Ver documentación HTML</a></section>
+</div>
+{% else %}
+<nav class="breadcrumbs" aria-label="Ubicación"><a href="{{ url_for('project', name=name) }}">Proyecto</a>{% for crumb in crumbs %}<span aria-hidden="true">/</span>{% if loop.last %}<span aria-current="page">{{ crumb.name }}</span>{% else %}<a href="{{ url_for('project', name=name, relative=crumb.relative) }}">{{ crumb.name }}</a>{% endif %}{% endfor %}</nav>
+<section>
+<div class="section-heading"><h2>{{ crumbs[-1].name if crumbs else 'Todos los resultados' }}</h2><a href="{{ url_for('project', name=name, relative=refresh_relative, vista=view) }}">Actualizar</a>{% if is_file %}<a class="button" href="{{ url_for('download', name=name, relative=relative) }}">Descargar archivo</a>{% endif %}</div>
+{% if is_file %}
+{% if site_url %}<p class="hint">Vista del sitio HTML. Puedes seguir sus enlaces aquí. Se muestran las páginas y los recursos locales; los scripts y recursos externos no se ejecutan.</p><iframe class="html-preview" src="{{ site_url }}" title="Documentación HTML de {{ name }}" sandbox="" referrerpolicy="no-referrer"></iframe>{% if content is not none %}<details><summary>Ver código HTML</summary><pre class="source"><code>{{ content }}</code></pre></details>{% endif %}
+{% elif note %}<p class="notice">{{ note }}</p>{% elif rendered is not none %}<article class="markdown">{{ rendered }}</article><details><summary>Ver Markdown original</summary><pre class="source"><code>{{ content }}</code></pre></details>{% else %}<pre class="source"><code>{{ content }}</code></pre>{% endif %}
+{% elif entries %}<ul class="file-list">{% for entry in entries %}<li><a href="{{ url_for('project', name=name, relative=entry.relative) }}"><span class="file-kind">{{ 'Carpeta' if entry.directory else 'Archivo' }}</span><strong>{{ entry.name }}</strong></a>{% if not entry.directory %}<span class="hint">{{ entry.size|filesizeformat }}</span><a href="{{ url_for('download', name=name, relative=entry.relative) }}" aria-label="Descargar {{ entry.name }}">Descargar</a>{% endif %}</li>{% endfor %}</ul>
+{% else %}<div class="empty"><h3>{% if view == 'html' %}Todavía no hay documentación HTML{% elif view == 'analisis' %}Todavía no hay archivos de análisis{% else %}Esta carpeta está vacía{% endif %}</h3><p>{% if view == 'html' %}El HTML se genera en una segunda etapa. Puedes consultar los Markdown del análisis mientras tanto.{% else %}Los archivos aparecerán aquí cuando Reversa los guarde. Usa Actualizar para consultar los cambios.{% endif %}</p>{% if view == 'html' %}<a href="{{ url_for('project', name=name, vista='analisis') }}">Ver análisis Markdown</a>{% else %}<a href="/">Abrir OpenCode para continuar</a>{% endif %}</div>{% endif %}
+</section>
+{% endif %}
+{% if overview %}<section><h2>Agregar archivos al proyecto</h2><p>Sube un ZIP con los archivos que quieres analizar.</p><form method="post" action="{{ url_for('upload_files', name=name) }}" enctype="multipart/form-data"><input type="hidden" name="csrf" value="{{ session['csrf'] }}"><label for="archive">Archivos de entrada (ZIP)</label><input id="archive" name="archive" type="file" accept=".zip" required><p class="hint">Hasta 100 MiB comprimidos y 500 MiB descomprimidos. No se sobrescriben archivos existentes. Las carpetas de resultados están reservadas al proceso. Se omiten archivos ocultos y node_modules; prepara una copia sin credenciales.</p><button type="submit">Agregar archivos</button></form></section>{% endif %}
+<footer>Los resultados pueden estar en elaboración. Su presencia no significa que el análisis haya finalizado o sido aprobado.</footer>
+</main></body></html>

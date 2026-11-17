@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Proyectos — Reversa</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body><main>
+<nav><strong>Reversa</strong><a href="/">OpenCode</a></nav>
+<header><h1>Proyectos</h1><p>Crea proyectos, sube archivos y consulta sus análisis Markdown y su documentación HTML.</p></header>
+{% for category, message in get_flashed_messages(with_categories=true) %}<p class="notice {{ category }}" role="status">{{ message }}</p>{% endfor %}
+<details class="create-project"><summary>Crear proyecto y cargar código</summary><section><h2>Nuevo proyecto</h2>
+<form method="post" action="{{ url_for('create') }}" enctype="multipart/form-data">
+<input type="hidden" name="csrf" value="{{ session['csrf'] }}">
+<label for="name">Nombre del proyecto</label><input id="name" name="name" required maxlength="64" pattern="[a-zA-Z0-9][a-zA-Z0-9-]*" placeholder="sistema-facturacion">
+<label for="archive">Código del proyecto (ZIP)</label><input id="archive" name="archive" type="file" accept=".zip" required>
+<p class="hint">Hasta 100 MiB comprimidos y 500 MiB descomprimidos. Las carpetas y archivos ocultos y node_modules se omiten. Prepara una copia sin credenciales.</p>
+<button type="submit">Crear y cargar proyecto</button>
+</form></section></details>
+<section><h2>Tus proyectos <span>{{ projects|length }}</span></h2>
+{% if projects %}<div class="projects">{% for project in projects %}<article><h3><a href="{{ url_for('project', name=project.name) }}">{{ project.name }}</a></h3><p class="hint">Markdown: {{ 'hay archivos para explorar' if project.analysis else 'sin archivos todavía' }} · HTML: {{ 'hay archivos para explorar' if project.html else 'sin generar todavía' }}</p><p class="project-actions"><a class="button" href="{{ url_for('project', name=project.name) }}">Archivos y resultados</a><a href="{{ url_for('project', name=project.name, vista='analisis') }}">Análisis (Markdown)</a><a href="{{ url_for('project', name=project.name, vista='html') }}">Documentación (HTML)</a><a href="/">Abrir OpenCode</a></p><details><summary>Carpeta para OpenCode</summary><p class="hint">En OpenCode: Add project → selecciona esta carpeta.</p><code>{{ project.path }}</code></details></article>{% endfor %}</div>{% else %}<p>Aún no hay proyectos. Abre «Crear proyecto y cargar código» para subir el primero.</p>{% endif %}
+</section><footer>En una sesión del proyecto, usa <code>/reversa</code> para analizar y <code>/reversa-docs</code> para generar su documentación.</footer>
+</main></body></html>

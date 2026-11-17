@@ -1,0 +1,12 @@
+#cloud-config
+write_files:
+  - path: /opt/reversa/runtime.tar.gz.b64
+    permissions: '0600'
+    content: ${runtime_b64}
+  - path: /etc/reversa/config.json
+    permissions: '0600'
+    encoding: b64
+    content: ${config_b64}
+runcmd:
+  - [bash, -c, 'base64 -d /opt/reversa/runtime.tar.gz.b64 | tar -xz -C /opt/reversa']
+  - [bash, /opt/reversa/install.sh]
