@@ -17,6 +17,8 @@ credenciales, OCIDs del cliente ni direcciones de acceso en este documento.
   del Apply definitivo, actualizar su configuración desde la versión actual de
   GitHub: contiene correcciones del arranque del portal, firewall y cloud-init.
 - Portal recuperado: 33 pruebas ejecutadas, correctas; una omitida en Windows.
+- Preparación de credenciales: cuatro pruebas offline correctas con SDK OCI
+  2.191.0, incluyendo reintento sin duplicación y rechazo de checkpoint ajeno.
 - Scripts de shell: sintaxis verificada con Bash.
 - Paquete Resource Manager generado por lista explícita.
 - Aplicación cloud: pendiente de registrar los resultados reales del stack.

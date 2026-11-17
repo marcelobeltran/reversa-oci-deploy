@@ -20,6 +20,7 @@ jobs:
       - run: terraform validate
       - run: bash -n runtime/install.sh && bash -n runtime/certificate.sh
       - run: python -m unittest discover -s runtime/portal -p 'test_*.py' -v
+      - run: python -m unittest discover -s tests -p 'test_*.py' -v
       - uses: actions/upload-artifact@v4
         with:
           name: reversa-resource-manager
