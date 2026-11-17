@@ -22,11 +22,12 @@ resource "oci_core_instance" "reversa" {
   instance_options { are_legacy_imds_endpoints_disabled = true }
   metadata = {
     ssh_authorized_keys = var.ssh_public_key
-    user_data = base64encode(templatefile("${path.module}/cloud-init.yaml.tftpl", {
+    user_data = base64gzip(templatefile("${path.module}/cloud-init.yaml.tftpl", {
       runtime_b64 = filebase64("${path.module}/runtime.tar.gz")
       config_b64 = base64encode(jsonencode({
         region             = var.region
         public_ip          = oci_core_public_ip.reversa.ip_address
+        lb_subnet_cidr     = var.public_cidr
         genai_project_ocid = oci_generative_ai_project.reversa.id
         genai_secret_ocid  = var.genai_secret_ocid
         web_secret_ocid    = var.web_secret_ocid

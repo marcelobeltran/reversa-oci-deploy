@@ -5,7 +5,14 @@ export DEBIAN_FRONTEND=noninteractive
 # Ubuntu's default archive URLs are HTTP; keep VM egress restricted to HTTPS.
 sed -i 's|http://|https://|g' /etc/apt/sources.list.d/ubuntu.sources
 apt-get update
-apt-get install -y nginx apache2-utils nodejs npm python3-venv curl ca-certificates
+apt-get install -y nginx apache2-utils nodejs npm python3-venv curl ca-certificates iptables-persistent
+LB_CIDR=$(python3 -c 'import json;print(json.load(open("/etc/reversa/config.json"))["lb_subnet_cidr"])')
+# OCI Ubuntu images can ship an INPUT reject rule. Permit only the LB subnet.
+for PORT in 80 443; do
+  iptables -C INPUT -p tcp -s "$LB_CIDR" --dport "$PORT" -j ACCEPT 2>/dev/null || \
+    iptables -I INPUT 1 -p tcp -s "$LB_CIDR" --dport "$PORT" -j ACCEPT
+done
+if command -v netfilter-persistent >/dev/null; then netfilter-persistent save; fi
 id opc >/dev/null 2>&1 || useradd --create-home --shell /bin/bash opc
 install -d -o opc -g opc -m 0700 /home/opc/proyectos /home/opc/.config/opencode /home/opc/.config/reversa-portal
 python3 -m venv /opt/reversa/venv
