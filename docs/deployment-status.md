@@ -18,8 +18,20 @@ credenciales, OCIDs del cliente ni dirección de acceso.
 - OCI rechazó un intento de desasociar la IP que administra el LB. La IP siguió
   asociada; lifecycle.ignore_changes sobre private_ip_id evita ese cambio en
   siguientes planes. Se continuó sobre el mismo estado, sin duplicar recursos.
-- Bastion administrativo restringido a una IP /32: Apply en curso. La VM aún no
-  se ha solicitado. Bootstrap, TLS y aceptación funcional siguen pendientes.
+- Bastion administrativo restringido a una IP /32: Apply **SUCCEEDED** antes de
+  crear la VM. Acceso temporal por port forwarding, sin VM bastión pública.
+- Aplicación: Plan de tres altas, cero cambios y cero destrucciones; Apply
+  **SUCCEEDED**. VM ejecutándose en subnet privada, sin IP pública. Ambos
+  backend sets del LB reportan **OK**.
+- cloud-init terminó correctamente. Nginx, OpenCode y portal están activos.
+- Certificado IP de Let's Encrypt emitido; confianza y SAN de IP verificados
+  externamente. Renovación simulada correcta; timer cada seis horas activo.
+- Aceptación real: carga ZIP desde HTTPS, inicialización de 73 habilidades,
+  lectura/escritura con Grok, Markdown visible en portal, streaming SSE y
+  activación de la habilidad oficial mediante `/reversa`, sin errores.
+- Runtime final sincronizado tanto en la VM como en el ZIP del mismo stack.
+  El Plan final terminó **SUCCEEDED**, sin cambios de infraestructura.
+- Evidencia y límites de aceptación: [acceptance.md](acceptance.md).
 
 ## Acceso temporal a OCI
 

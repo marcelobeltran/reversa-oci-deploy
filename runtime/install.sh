@@ -22,7 +22,9 @@ CERTBOT_VERSION=$(python3 -c 'import json;print(json.load(open("/etc/reversa/con
 npm install --global "opencode-ai@$OPENCODE_VERSION" reversa@1.3.4
 python3 -m venv /opt/reversa/certbot
 /opt/reversa/certbot/bin/pip install --disable-pip-version-check "certbot==$CERTBOT_VERSION"
-install -m 0755 /opt/reversa/project_init.mjs /usr/local/bin/reversa-project-init
+printf '#!/bin/sh\nexec /usr/bin/node /opt/reversa/project_init.mjs "$@"\n' > /usr/local/bin/reversa-project-init
+chmod 0755 /usr/local/bin/reversa-project-init
+runuser -u opc -- /usr/local/bin/reversa-project-init --check
 # The portal initializer invokes /usr/bin/npm on Ubuntu, the source's audited path.
 install -d -m 0755 /var/www/reversa-acme/.well-known/acme-challenge
 /opt/reversa/venv/bin/python /opt/reversa/configure.py

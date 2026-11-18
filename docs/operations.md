@@ -37,7 +37,9 @@ no se seleccionó otro proveedor. La respuesta textual del modelo no basta.
 
 Certbot 5.4+ usa perfil `shortlived` y `--ip-address`. El timer comprueba renovación
 cada seis horas y recarga Nginx incluso cuando solo se renueva el certificado.
-La primera emisión se reintenta en el siguiente timer si el LB aún no enruta.
+Si el LB todavía no enruta durante la primera emisión, el servicio reintenta
+cada cinco minutos, con un máximo de tres arranques por hora. El timer conserva
+su comprobación cada seis horas. No reintentar manualmente en un bucle.
 Para un reintento tras corregir conectividad:
 
 ```bash

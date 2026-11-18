@@ -68,7 +68,7 @@ def main():
         log.write_bytes(content)
         log.chmod(0o600)
         clean = re.sub(r'\x1b\[[0-9;]*m','',content.decode('utf-8',errors='replace'))
-        summary = re.findall(r'(?:Plan: \d+ to add, \d+ to change, \d+ to destroy\.|Apply complete![^\n]*)',clean)
+        summary = re.findall(r'(?:Plan: \d+ to add, \d+ to change, \d+ to destroy\.|Apply complete![^\n]*|No changes\.[^\n]*)',clean)
         print(json.dumps({'job':job_summary(job),'summary':summary,'log_file':str(log)},indent=2))
         return
     if args.action == 'sync-source':
