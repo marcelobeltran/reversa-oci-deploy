@@ -159,6 +159,20 @@ El token de sesión es temporal. La configuración y sus claves quedan en `local
 que se excluye de Git y del ZIP. El login lo completa el titular de la cuenta si
 OCI requiere contraseña o MFA; no se guardan credenciales de usuario en GitHub.
 
+Antes de habilitar compute, `python scripts/smoke-genai.py --region us-chicago-1`
+comprueba una inferencia mínima real con el proyecto y la clave del checkpoint
+privado. Para otra región/modelo usar `--region` y `--model`. Solo imprime estado,
+modelo y consumo; no muestra la clave ni la respuesta. Un fallo debe resolverse
+antes de atribuirlo a la VM o introducir intermediarios.
+
+Para administración opcional, configurar una clave SSH pública en
+`ssh_public_key` y la IP de administración /32 en `bastion_allowed_cidrs` antes
+del Plan. Tras exportar outputs y guardar la clave pública en
+`local/reversa-admin.pub`, `python scripts/admin-session.py` crea una sesión
+temporal de port forwarding al puerto 22 privado. Sus metadatos se guardan en
+`local/admin-session.private.json`; la clave privada permanece local. El usuario
+SSH de la imagen Ubuntu es `ubuntu`; `opc` ejecuta la aplicación.
+
 ## Parámetros y operación
 
 Consultar `variables.tf`, [operación y recuperación](docs/operations.md),

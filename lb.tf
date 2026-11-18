@@ -2,6 +2,8 @@ resource "oci_core_public_ip" "reversa" {
   compartment_id = local.network_compartment
   lifetime       = "RESERVED"
   display_name   = "${var.prefix}-public-ip"
+  # The load balancer service owns the private-IP attachment after reservation.
+  lifecycle { ignore_changes = [private_ip_id] }
 }
 resource "oci_load_balancer_load_balancer" "reversa" {
   compartment_id             = local.network_compartment

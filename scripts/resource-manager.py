@@ -61,7 +61,9 @@ def main():
         job = rm.get_job(args.job_id or refs['plan_job_ocid']).data
         if job.stack_id != stack.id:
             raise RuntimeError('El job no pertenece al stack esperado')
-        content = rm.get_job_logs_content(job.id).data.content
+        content = rm.get_job_logs_content(job.id).data
+        if hasattr(content, 'content'): content = content.content
+        if isinstance(content, str): content = content.encode('utf-8')
         log = ROOT/'local'/('reversa-'+job.operation.lower()+'.private.log')
         log.write_bytes(content)
         log.chmod(0o600)
@@ -101,13 +103,13 @@ def main():
         return
     if active_jobs(): raise RuntimeError('Ya hay un job activo; consultar status, no duplicarlo.')
     if args.action == 'plan':
-        details = oci.resource_manager.models.PlanJobOperationDetails()
+        details = oci.resource_manager.models.CreatePlanJobOperationDetails()
         operation = 'PLAN'
     else:
         plan = rm.get_job(args.plan_id or refs['plan_job_ocid']).data
         if plan.stack_id != stack.id or plan.operation != 'PLAN' or plan.lifecycle_state != 'SUCCEEDED':
             raise RuntimeError('Apply requiere un Plan exitoso del mismo stack')
-        details = oci.resource_manager.models.ApplyJobOperationDetails(
+        details = oci.resource_manager.models.CreateApplyJobOperationDetails(
             execution_plan_strategy='FROM_PLAN_JOB_ID', execution_plan_job_id=plan.id)
         operation = 'APPLY'
     job = rm.create_job(oci.resource_manager.models.CreateJobDetails(

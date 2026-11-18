@@ -70,6 +70,26 @@ class ExistingStackTests(unittest.TestCase):
         with self.assertRaises(RuntimeError): self.run_action('apply')
         self.client.create_job.assert_not_called()
 
+    def assert_serializable_job(self, action):
+        self.client.create_job.return_value.data = types.SimpleNamespace(
+            id='new-job', display_name='test', operation=action.upper(), lifecycle_state='ACCEPTED')
+        self.client.get_job.return_value.data = types.SimpleNamespace(
+            id='test-plan', stack_id='test-stack', operation='PLAN', lifecycle_state='SUCCEEDED')
+        self.run_action(action)
+        details = self.client.create_job.call_args.args[0]
+        serializer = driver.oci.base_client.BaseClient.__new__(driver.oci.base_client.BaseClient)
+        serializer.complex_type_mappings = driver.oci.resource_manager.models.resource_manager_type_mapping
+        body = serializer.sanitize_for_serialization(details)
+        self.assertEqual(body['jobOperationDetails']['operation'], action.upper())
+        return body
+
+    def test_plan_request_passes_real_sdk_serialization(self):
+        self.assert_serializable_job('plan')
+
+    def test_apply_request_serializes_the_selected_plan(self):
+        body = self.assert_serializable_job('apply')
+        self.assertEqual(body['jobOperationDetails']['executionPlanJobId'], 'test-plan')
+
 
 if __name__ == '__main__':
     unittest.main()

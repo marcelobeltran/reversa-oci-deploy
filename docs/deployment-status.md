@@ -1,47 +1,34 @@
-# Registro de entrega — 17 noviembre 2026
+# Registro de despliegue — 18 noviembre 2026
 
-Tenant destino observado: workshoprever, home region Chicago. No se publican
-credenciales, OCIDs del cliente ni direcciones de acceso en este documento.
+Destino: workshoprever, región principal Chicago. Este registro no publica
+credenciales, OCIDs del cliente ni dirección de acceso.
 
-- Repositorio GitHub nuevo creado: marcelobeltran/reversa-oci-deploy.
-- Terraform: `validate` correcto con proveedor oracle/oci 9.13.0.
-- GitHub Actions: primera ejecución completa correcta (44164215383).
-- Stack `reversa-stack` creado en Resource Manager, estado Active; todavía sin Apply.
-- Tras reiniciar Chrome se confirmó que `reversa-foundation-plan` terminó
-  **Succeeded**. No se había ejecutado Apply.
-- Se actualizó el ZIP del mismo stack con las correcciones del arranque del portal,
-  firewall y cloud-init, manteniendo `enable_compute=false`.
-- Se envió `reversa-foundation-plan-current`. Último estado observado: Accepted.
-- Chrome volvió a bloquearse al abrir la vista de Logs. Se está preparando el
-  acceso por OCI CLI para consultar el mismo job y continuar sin esa vista.
-- OCI CLI oficial 3.96.3 instalada en una carpeta aislada del proyecto. Login
-  temporal de 60 minutos abierto; autenticación del titular pendiente.
+- Repositorio: marcelobeltran/reversa-oci-deploy; infraestructura parametrizada,
+  runtime y documentación versionados. Validación Terraform y CI correctas.
+- Resource Manager: un único stack y estado remoto. Foundation Apply **SUCCEEDED**.
+  Compartimentos, VCN, subnets pública/privada, rutas, gateways, NSG, IP reservada,
+  balanceador, Vault/clave y proyecto GenAI creados antes de la VM.
+- Credenciales GenAI y web creadas y almacenadas directamente en Vault. El estado
+  Terraform contiene referencias; las claves no se empaquetan ni publican.
+- Políticas de lectura de los dos secretos e inferencia por API key creadas.
+- Inferencia real mínima con xai.grok-4.6 **correcta**, usando el endpoint Oracle
+  OpenAI compatible y OpenAI-Project, sin proxy.
+- Se corrigió el controlador OCI para usar los modelos Create* de solicitudes;
+  siete pruebas cubren aislamiento y serialización real del SDK.
+- OCI rechazó un intento de desasociar la IP que administra el LB. La IP siguió
+  asociada; lifecycle.ignore_changes sobre private_ip_id evita ese cambio en
+  siguientes planes. Se continuó sobre el mismo estado, sin duplicar recursos.
+- Bastion administrativo restringido a una IP /32: Apply en curso. La VM aún no
+  se ha solicitado. Bootstrap, TLS y aceptación funcional siguen pendientes.
 
-## Continuación — 18 noviembre 2026
+## Acceso temporal a OCI
 
-- Se confirmó `Succeeded` para `reversa-foundation-plan-current` en la lista de jobs.
-- Se solicitó `reversa-foundation-apply`, seleccionando explícitamente ese Plan.
-  La redirección automática a Logs volvió a bloquear Chrome antes de poder leer
-  el resultado. Consultar ese job antes de emitir otro Apply; no asumir éxito ni
-  fallo a partir del bloqueo del navegador.
-- El intento anterior de autenticación temporal terminó con `invalid state` y no
-  produjo un perfil de CLI. Se abrió un nuevo flujo oficial de sesión, sin fijar
-  el tenant en la URL inicial. Queda pendiente completar el login/MFA del titular.
-- No se solicitó la creación de la VM. La configuración conserva
-  `enable_compute=false`.
-- Portal recuperado: 33 pruebas ejecutadas, correctas; una omitida en Windows.
-- Preparación de credenciales: cuatro pruebas offline correctas con SDK OCI
-  2.191.0, incluyendo reintento sin duplicación y rechazo de checkpoint ajeno.
-- Controlador de Resource Manager: cinco pruebas offline correctas de aislamiento
-  por tenant/stack y rechazo de jobs duplicados; nueve junto a las de credenciales.
-- Scripts de shell: sintaxis verificada con Bash.
-- Paquete Resource Manager generado por lista explícita.
-- Aplicación cloud: pendiente de registrar los resultados reales del stack.
-- TLS, renovación y prueba funcional GenAI: pendientes en tenant destino.
+Chrome se bloqueó repetidamente en Logs; las operaciones continúan mediante API.
+El login de CLI 3.96.3 omitía state y OCI devolvía state=undefined. Se inició una
+nueva autorización conservando public_key, nonce y callback del proceso oficial,
+con state explícito igual al nonce. El titular completó contraseña/MFA y la CLI
+confirmó autenticación, creó su perfil temporal y permitió consultar Resource
+Manager. No se almacenan contraseñas de usuario en el repositorio.
 
-No interpretar estas comprobaciones locales como una instalación cloud terminada.
-
-Para continuar se necesita completar el login temporal OCI. No se necesita enviar
-claves privadas ni contraseñas por chat.
-Consultar el job existente antes de volver a ejecutar Plan. Conservar el mismo
-stack y su estado; no crear otra infraestructura duplicada desde Terraform local.
+No reutilizar un enlace de autorización después del callback ni publicar tokens.
+Las sesiones y checkpoints se guardan exclusivamente en local/, excluido de Git.
