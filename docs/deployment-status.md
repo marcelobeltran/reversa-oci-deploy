@@ -16,6 +16,19 @@ credenciales, OCIDs del cliente ni direcciones de acceso en este documento.
   acceso por OCI CLI para consultar el mismo job y continuar sin esa vista.
 - OCI CLI oficial 3.96.3 instalada en una carpeta aislada del proyecto. Login
   temporal de 60 minutos abierto; autenticación del titular pendiente.
+
+## Continuación — 18 noviembre 2026
+
+- Se confirmó `Succeeded` para `reversa-foundation-plan-current` en la lista de jobs.
+- Se solicitó `reversa-foundation-apply`, seleccionando explícitamente ese Plan.
+  La redirección automática a Logs volvió a bloquear Chrome antes de poder leer
+  el resultado. Consultar ese job antes de emitir otro Apply; no asumir éxito ni
+  fallo a partir del bloqueo del navegador.
+- El intento anterior de autenticación temporal terminó con `invalid state` y no
+  produjo un perfil de CLI. Se abrió un nuevo flujo oficial de sesión, sin fijar
+  el tenant en la URL inicial. Queda pendiente completar el login/MFA del titular.
+- No se solicitó la creación de la VM. La configuración conserva
+  `enable_compute=false`.
 - Portal recuperado: 33 pruebas ejecutadas, correctas; una omitida en Windows.
 - Preparación de credenciales: cuatro pruebas offline correctas con SDK OCI
   2.191.0, incluyendo reintento sin duplicación y rechazo de checkpoint ajeno.
