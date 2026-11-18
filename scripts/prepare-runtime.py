@@ -25,6 +25,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--outputs', required=True, type=Path, help='terraform output -json file')
     parser.add_argument('--profile', default='DEFAULT')
+    parser.add_argument('--config', default='~/.oci/config')
     parser.add_argument('--auth', choices=['api_key','security_token'], default='api_key')
     parser.add_argument('--region', default='us-chicago-1')
     parser.add_argument('--prefix', default='reversa')
@@ -33,7 +34,7 @@ def main():
     args = parser.parse_args()
     os.umask(0o077)
     out = {k:v['value'] for k,v in json.loads(args.outputs.read_text()).items()}
-    config = oci.config.from_file(profile_name=args.profile)
+    config = oci.config.from_file(file_location=str(Path(args.config).expanduser()), profile_name=args.profile)
     config['region'] = args.region
     kwargs = {}
     if args.auth == 'security_token':

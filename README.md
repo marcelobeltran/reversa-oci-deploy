@@ -133,6 +133,32 @@ desactivado y finalmente habilitarlo con imagen/AD verificadas.
 No alternar Terraform local y Resource Manager con estados separados. Para migrar
 entre ellos, transferir/importar el estado de forma explícita antes de aplicar.
 
+Si la vista web de Logs se bloquea, `scripts/resource-manager.py` permite operar
+el mismo stack mediante una sesión temporal de OCI CLI. No crea un segundo
+estado Terraform. Guardar referencias del tenant/stack en un JSON local con
+`tenancy_ocid`, `region`, `stack_ocid` y `plan_job_ocid`, y pasarlo con `--refs`.
+El controlador verifica el tenant de la sesión antes de cualquier cambio, evita
+crear jobs simultáneos y aplica únicamente un Plan exitoso del mismo stack.
+
+```bash
+oci session authenticate --region us-chicago-1 --profile-name REVERSA \
+  --config-location local/oci/config
+python scripts/resource-manager.py status --refs local/deployment.private.json
+python scripts/resource-manager.py sync-source --refs local/deployment.private.json
+python scripts/resource-manager.py plan --refs local/deployment.private.json --wait
+python scripts/resource-manager.py apply --refs local/deployment.private.json --wait
+python scripts/resource-manager.py outputs --refs local/deployment.private.json
+```
+
+Tras crear la base, preparar los secretos con `prepare-runtime.py --profile REVERSA
+--auth security_token --config local/oci/config --outputs local/outputs.json`.
+Actualizar el mismo stack mediante `sync-source --variables
+local/runtime.auto.tfvars.json`, planificar y aplicar IAM. Finalmente añadir
+`"enable_compute": true` al JSON local, sincronizar y aplicar el Plan de la VM.
+El token de sesión es temporal. La configuración y sus claves quedan en `local/`,
+que se excluye de Git y del ZIP. El login lo completa el titular de la cuenta si
+OCI requiere contraseña o MFA; no se guardan credenciales de usuario en GitHub.
+
 ## Parámetros y operación
 
 Consultar `variables.tf`, [operación y recuperación](docs/operations.md),
