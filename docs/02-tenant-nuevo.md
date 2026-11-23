@@ -1,12 +1,12 @@
-# 2. Instalar desde OCI, sin herramientas en tu PC
+# 2. Instalar Reversa en OCI
 
 [Inicio](../README.md) · [Primer uso](01-primer-uso.md) · [Alternativa PowerShell](02-tenant-nuevo-terminal.md)
 
-**Esta es la ruta recomendada.** Funciona desde Windows, Linux o macOS con un
-navegador. No requiere instalar Git, Python, PowerShell, Terraform ni OCI CLI en
-tu PC. El único archivo que necesitas descargar allí es el ZIP para subirlo a OCI.
+Esta guía describe la instalación de Reversa en un tenant nuevo mediante
+Resource Manager y Cloud Shell. Al finalizar tendrás una URL HTTPS para acceder
+a la aplicación y cargar tu primer proyecto.
 
-## Qué necesitas y qué se automatiza
+## Requisitos y lugares de trabajo
 
 - Un tenant limpio y un usuario con permisos administrativos para red, IAM, VM,
   Vault, GenAI, Resource Manager y acceso a Cloud Shell.
@@ -22,12 +22,10 @@ tu PC. El único archivo que necesitas descargar allí es el ZIP para subirlo a 
 | Reversa en el navegador | Probar carga y análisis al terminar |
 
 Cloud Shell es una terminal Linux en el navegador de OCI, autenticada con tu
-sesión. **No es PowerShell de tu PC ni la terminal de la VM.**
+sesión. Los comandos de preparación se ejecutan en esa terminal.
 
-El asistente prepara secretos fuera del estado Terraform y actualiza sus OCID en
-el stack. No ejecuta Apply ni crea la VM. Mantendrás las revisiones de Plan/Apply
-en la interfaz de OCI. Esta ruta todavía tiene ese paso intermedio, no es una
-instalación completa de un solo clic.
+El asistente de Cloud Shell prepara los secretos en Vault y actualiza sus OCID
+en el stack. Los planes y su aplicación se revisan y ejecutan en Resource Manager.
 
 ## Paso 1. Entrar al tenant correcto
 
@@ -42,7 +40,7 @@ no reemplaza el OCID del tenant. El despliegue crea recursos facturables.
 
 ## Paso 2. Descargar el ZIP listo para Resource Manager
 
-**Dónde:** GitHub en el navegador de tu PC.
+**Dónde:** GitHub, en el navegador.
 
 Abre [la última publicación](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest)
 y, en **Assets**, descarga:
@@ -51,10 +49,10 @@ y, en **Assets**, descarga:
 - [reversa-prueba.zip](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest/download/reversa-prueba.zip): ejemplo para probar el portal al finalizar.
 - `SHA256SUMS`, opcional, permite comprobar los archivos.
 
-**Esperado:** ambos ZIP en Descargas. No tienes que generarlos ni instalar
-herramientas. **No uses Code > Download ZIP**: ese es el código fuente del
-repositorio, no el paquete preparado para el stack. No subas el ZIP de prueba
-como configuración Terraform.
+**Esperado:** ambos ZIP en Descargas. Utiliza `reversa-resource-manager.zip`
+para el stack y conserva `reversa-prueba.zip` para la prueba del portal.
+La opción Code > Download ZIP descarga el código fuente del repositorio; los
+paquetes de instalación están en Assets de la publicación.
 
 ## Paso 3. Crear el stack sin Apply automático
 
@@ -103,8 +101,8 @@ la lista de jobs para consultar su estado y evita emitir un Apply duplicado.
 
 1. Abre **Cloud Shell**, manteniendo Chicago seleccionada.
 2. En su menú elige **Upload** y sube `reversa-resource-manager.zip` desde Descargas
-   a tu directorio personal de Cloud Shell. No necesitas descargar Git allí.
-3. Pega este bloque en **Cloud Shell**, no en una terminal de tu PC:
+   a tu directorio personal de Cloud Shell.
+3. Ejecuta este bloque en **Cloud Shell**:
 
 ```bash
 mkdir -p ~/reversa-tenant-01
@@ -130,7 +128,7 @@ python3 scripts/cloud-shell.py prepare
 ```
 
 Pega **el OCID del stack del paso 3** cuando lo solicite. No introduzcas contraseñas.
-La sesión delegada de Cloud Shell sustituye el login de CLI del PC.
+El asistente utiliza la sesión autenticada de Cloud Shell.
 
 **Qué hace:**
 
@@ -215,7 +213,6 @@ La ruta básica no crea Bastion ni abre SSH público. La clave pública ya queda
 en la VM para habilitar administración después. Si necesitas entrar, configura
 `bastion_allowed_cidrs` con tu IP administrativa /32 en el mismo stack y aplica
 su Plan antes de seguir [la guía de Bastion](03-administracion.md#paso-2-crear-una-sesión-temporal-de-bastion).
-Usar la web no requiere ese túnel ni herramientas SSH en tu PC.
 
 ## Paso 12. Obtener la URL y las credenciales
 
@@ -250,7 +247,7 @@ El certificado inicial puede tardar por la propagación de health checks del LB;
 el servicio tiene reintentos limitados. Ante un error persistente, consulta
 [problemas frecuentes](03-administracion.md#problemas-frecuentes).
 
-## Paso 14. Probar la aplicación sin instalar herramientas
+## Paso 14. Probar la aplicación
 
 **Dónde:** navegador, [Primer uso](01-primer-uso.md).
 
@@ -274,10 +271,8 @@ Apply cuando no hay cambios. No ejecutes Terraform local contra ese stack.
 - [ ] Clave SSH y vencimiento de la API key guardados de forma segura.
 - [ ] Comprobación interna y renovación verificadas, o registradas como pendientes si aún no habilitaste administración.
 
-La base conserva Reversa 1.3.4. La clave GenAI requiere rotación antes de 90 días;
-ver [Operación](operations.md). No se modificó la instalación existente al crear
-esta guía. El asistente Cloud Shell tiene pruebas de SDK simuladas y empaquetado;
-no se presenta como un nuevo despliegue end-to-end ya ejecutado en un tenant limpio.
+La base utiliza Reversa 1.3.4. La clave GenAI requiere rotación antes de 90 días;
+consulta [Operación](operations.md).
 
 ## Si Cloud Shell no tiene el SDK necesario
 
@@ -295,25 +290,22 @@ python3 -m venv --system-site-packages .venv
 ```
 
 En ese caso usa también `.venv/bin/python scripts/cloud-shell.py check` en el
-paso 8. No cambia el Python de tu PC ni requiere otro login.
+paso 8. El entorno mantiene la autenticación de Cloud Shell.
 
 Para descargar paquetes PyPI puede ser necesario seleccionar **Public Network**
 en Cloud Shell. Si no está permitido, el administrador debe habilitar el acceso
 para el grupo correspondiente o proporcionar el SDK por la vía de la organización.
-El ZIP se sube por el navegador para evitar depender de GitHub desde Cloud Shell.
+
 [Red de Cloud Shell](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/cloudshellintro_topic-Cloud_Shell_Networking.htm).
 
 ## Si cierras Cloud Shell
 
 Reábrelo en el mismo tenant/usuario/región y ejecuta `cd ~/reversa-tenant-01`.
-Sus archivos son distintos de los de tu PC. Conserva `local/`: liga el checkpoint
+Conserva `local/`: liga el checkpoint
 al stack y evita duplicar credenciales. No uses `csreset -a` para retomar.
 Si un job continúa activo, espera a que termine antes de ejecutar el asistente.
 
-## ¿Y si prefiero terminal local?
+## Otras opciones de instalación
 
-La [alternativa Windows PowerShell](02-tenant-nuevo-terminal.md) conserva los
-comandos de instalación y validación de herramientas. Su paso 2 sí descarga el
-repositorio y crea un entorno en el PC. No es obligatorio para esta ruta.
-Un usuario Linux puede usar esta misma guía OCI sin instalar nada en su máquina;
-los dos comandos del asistente se ejecutan en Cloud Shell, siempre en Linux.
+[Instalación desde PowerShell](02-tenant-nuevo-terminal.md): procedimiento para
+administradores que ejecutan la preparación desde una estación Windows.

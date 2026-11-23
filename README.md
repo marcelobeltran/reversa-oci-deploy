@@ -9,7 +9,7 @@ Elige un recorrido antes de ejecutar comandos:
 | Entrar a la VM o resolver un problema | [3. Administración](docs/03-administracion.md) | Consola OCI, PowerShell y SSH a Ubuntu |
 
 **Si ya tienes la URL y quieres analizar un proyecto, comienza por
-[Primer uso](docs/01-primer-uso.md). No necesitas instalar Terraform ni crear otra VM.**
+[Primer uso](docs/01-primer-uso.md).**
 
 ## Cómo leer las instrucciones
 
@@ -30,9 +30,9 @@ sección **Assets**:
 - [ZIP para Resource Manager](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest/download/reversa-resource-manager.zip).
 - [ZIP de ejemplo para el portal](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest/download/reversa-prueba.zip).
 
-No hace falta clonar el repositorio ni instalar herramientas en tu PC. No uses
-**Code > Download ZIP** como paquete del stack. Sigue [la guía OCI](docs/02-tenant-nuevo.md).
-Funciona igual desde Windows, Linux o macOS porque la preparación corre en Cloud Shell.
+Descarga los paquetes desde Assets de la publicación y sigue
+[la guía de instalación](docs/02-tenant-nuevo.md). La preparación se ejecuta en
+Cloud Shell y el despliegue se administra en Resource Manager.
 
 ## Qué contiene este repositorio
 
@@ -42,7 +42,7 @@ El portal agregado permite cargar ZIP y consultar resultados. La base fija
 Reversa **1.3.4** y OpenCode **1.19.0**.
 
 La instalación recomendada utiliza **un stack de OCI Resource Manager**.
-Terraform corre en OCI: para esa ruta no necesitas Terraform en tu PC.
+Resource Manager ejecuta Terraform y conserva el estado de la infraestructura.
 No ejecutes `scripts/deploy.py` ni `terraform apply` local contra recursos de ese
 stack, porque administrarías otro estado independiente.
 
@@ -53,9 +53,9 @@ stack, porque administrarías otro estado independiente.
 3. En ese tenant, repetir [Primer uso](docs/01-primer-uso.md).
 4. Registrar el resultado con [la lista de aceptación](docs/02-tenant-nuevo.md#paso-15-registrar-la-prueba).
 
-El despliegue crea recursos facturables OCI. Los comandos de esta guía se
-contrastaron con los scripts. El registro cloud corresponde al **18/11/2026**,
-no a una nueva instalación realizada al editar la documentación.
+El despliegue crea recursos facturables OCI. Consulta el
+[registro de aceptación](docs/acceptance.md) para conocer las comprobaciones
+y el alcance de la instalación de referencia.
 
 ## Referencias, después del paso a paso
 

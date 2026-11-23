@@ -3,7 +3,7 @@
 [Inicio](../README.md) · [Instalar en otro tenant](02-tenant-nuevo.md)
 
 **Objetivo:** cargar un proyecto, comprobar lectura/escritura y luego iniciar el
-análisis. Esta ruta no cambia infraestructura.
+análisis.
 
 ## Antes de empezar
 
@@ -23,7 +23,7 @@ No uses la IP privada de la VM ni añadas `:4096` o `:4100` a la URL.
 
 ## Paso 1. Preparar un ZIP de prueba
 
-**Dónde:** GitHub, en el navegador. No necesitas instalar herramientas.
+**Dónde:** GitHub, en el navegador.
 
 Descarga [reversa-prueba.zip](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest/download/reversa-prueba.zip)
 desde **Assets** de [la publicación](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest).

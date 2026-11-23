@@ -47,7 +47,7 @@ jobs:
             const release = await github.rest.repos.createRelease({
               owner: context.repo.owner, repo: context.repo.repo,
               tag_name: tag, name: 'Reversa: instalación desde OCI (' + tag + ')',
-              body: 'Descarga reversa-resource-manager.zip para Resource Manager. La guía principal está en docs/02-tenant-nuevo.md. reversa-prueba.zip sirve para probar el portal. SHA256SUMS permite comprobar ambos archivos. Base: Reversa 1.3.4, OpenCode 1.19.0. Asistente Cloud Shell verificado con pruebas SDK simuladas; no equivale a otro despliegue end-to-end en tenant limpio.'
+              body: 'Descarga reversa-resource-manager.zip para Resource Manager. La guía principal está en docs/02-tenant-nuevo.md. reversa-prueba.zip sirve para probar el portal. SHA256SUMS permite comprobar ambos archivos. Base: Reversa 1.3.4, OpenCode 1.19.0.'
             });
             for (const name of ['reversa-resource-manager.zip', 'reversa-prueba.zip', 'SHA256SUMS']) {
               await github.rest.repos.uploadReleaseAsset({
