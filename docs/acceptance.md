@@ -1,5 +1,8 @@
 # Aceptación — 18 noviembre 2026
 
+[Inicio](../README.md) · Registro histórico. Para repetir la prueba usa
+[Instalación paso a paso](02-tenant-nuevo.md), no este registro de resultados.
+
 Verificaciones realizadas sobre la instalación real en Chicago. No se publican
 IPs, OCIDs, contraseñas, tokens ni cuerpos de respuestas de clientes.
 

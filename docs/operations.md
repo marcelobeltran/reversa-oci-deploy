@@ -1,45 +1,21 @@
-# Aceptación, operación y recuperación
+# Operación y mantenimiento
 
-## Antes de habilitar compute
+[Inicio](../README.md) · [Entrar por SSH y diagnosticar](03-administracion.md)
 
-- Confirmar tenancy, home region, estado de compartimentos, rutas y NSG.
-- Comprobar LB activo, IP reservada y que no hay backend todavía.
-- Verificar Vault y proyecto GenAI activos en los compartimentos correctos.
-- Preparar claves por tenant, aplicar IAM y verificar disponibilidad de Grok 4.6.
-- Consultar cuotas y límites: la referencia histórica tuvo un pico estimado de
-  unos 880.000 tokens/min incluyendo caché. La forma de contabilizar caché debe
-  confirmarse con OCI; no se promete resolver un 429 aumentando memoria de VM.
-- Verificar imagen Ubuntu 24.04 x86_64 y capacidad E5 en la AD elegida.
+Para la primera instalación sigue [Tenant nuevo](02-tenant-nuevo.md). Para usar
+la app sigue [Primer uso](01-primer-uso.md). Esta página se consulta una vez
+operativa la instalación.
 
-## Después de habilitar compute
-
-Entrar mediante OCI Bastion cuando esté habilitado. Comprobar:
-
-```bash
-sudo cloud-init status --wait
-systemctl is-active nginx reversa-opencode reversa-portal
-systemctl status reversa-certificate.timer --no-pager
-sudo journalctl -u reversa-certificate.service -n 40 --no-pager
-curl --fail http://127.0.0.1:4096/global/health
-```
-
-Desde otra red, `curl -I https://IP/` debe validar el certificado y responder 401
-sin credenciales. `http://IP/` devuelve 404, no sirve proyectos. Probar el portal
-autenticado y la conversación web; comprobar streaming y WebSocket. La VM no debe
-tener IP pública y 4096/4100/22 no deben quedar expuestos a Internet.
-
-Crear un proyecto sintético, subir dos archivos de ejemplo y activar `/reversa`.
-Comprobar llamadas reales de lectura/escritura, checkpoints y entregables en
-disco; exportar evidencia sanitizada del proveedor/modelo/endpoint. Confirmar que
-no se seleccionó otro proveedor. La respuesta textual del modelo no basta.
-
-## Certificados IP
+## Revisar certificados IP
 
 Certbot 5.4+ usa perfil `shortlived` y `--ip-address`. El timer comprueba renovación
 cada seis horas y recarga Nginx incluso cuando solo se renueva el certificado.
 Si el LB todavía no enruta durante la primera emisión, el servicio reintenta
 cada cinco minutos, con un máximo de tres arranques por hora. El timer conserva
 su comprobación cada seis horas. No reintentar manualmente en un bucle.
+
+**Dónde:** terminal SSH de Ubuntu, tras completar [Administración](03-administracion.md).
+
 Para un reintento tras corregir conectividad:
 
 ```bash
@@ -47,6 +23,10 @@ sudo systemctl start reversa-certificate.service
 sudo /opt/reversa/certbot/bin/certbot certificates
 sudo /opt/reversa/certbot/bin/certbot renew --dry-run
 ```
+
+**Resultado esperado:** el servicio termina correctamente, Certbot muestra el
+certificado de la IP con vigencia futura y el dry-run confirma renovación simulada.
+Si falla, revisar journalctl antes de continuar.
 
 El dry-run debe ejecutarse después de la primera emisión real. En un ensayo previo
 usar el servidor staging de Let's Encrypt, sin cargar ese certificado en producción.
@@ -58,19 +38,63 @@ alertar con al menos 48 horas restantes. Esta entrega no configura un destino de
 alertas porque no se proporcionó correo o canal. Si la VM se recrea se necesita
 preservar/restaurar `/etc/letsencrypt` o emitir otro certificado para la misma IP.
 
-## Credenciales y datos
+## Cambiar la contraseña web
 
-Leer el secreto web en Vault con el usuario administrador. Su JSON incluye
-`username` y `password`. Para cambiar contraseña: publicar una versión CURRENT
-del secreto, ejecutar `sudo /opt/reversa/venv/bin/python /opt/reversa/configure.py`
-y recargar Nginx. Para rotar GenAI, renovar la clave standby, cambiar CURRENT del
-secreto GenAI y reiniciar `reversa-opencode`. Verificar una inferencia antes de
-revocar la anterior. Nunca pegar valores en Terraform o en la consola del plan.
+**Dónde:** consola web OCI, Vault del compartment `reversa-security`.
+
+1. Abre el secreto `reversa-web`.
+2. Crea una nueva versión con un JSON de campos `username` y `password`. El usuario
+   debe usar letras/números/guion/guion bajo, y la contraseña al menos 20 caracteres.
+3. Confirma que la nueva versión sea `CURRENT`.
+4. Después, en **SSH de Ubuntu**, ejecuta:
+
+```bash
+sudo /opt/reversa/venv/bin/python /opt/reversa/configure.py
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+**Resultado esperado:** configuración válida y acceso con la credencial nueva
+en una ventana privada del navegador. El navegador anterior puede conservar
+credenciales básicas en caché. `configure.py` también regenera la configuración
+OpenCode desde `/etc/reversa/config.json`: tenlo en cuenta si la editaste manualmente.
+
+## Rotar la clave GenAI y respaldar datos
+
+**Dónde:** consola OCI para la clave GenAI y Vault; SSH de Ubuntu para reiniciar.
+
+1. Antes de los 90 días, renueva la clave secundaria de la API key GenAI de Reversa.
+2. Guarda su valor como nueva versión CURRENT del secreto `reversa-genai`.
+3. En SSH de Ubuntu, ejecuta:
+
+```bash
+sudo systemctl restart reversa-opencode
+systemctl is-active reversa-opencode
+curl --fail --silent http://127.0.0.1:4096/global/health
+```
+
+4. En el navegador, abre OpenCode y realiza la prueba de lectura/escritura de
+   [Primer uso, paso 5](01-primer-uso.md#paso-5-comprobar-lectura-y-escritura).
+5. Solo después de esa inferencia correcta, retira la clave anterior según la
+   política de la organización y registra el próximo vencimiento.
+
+**Resultado esperado:** servicio activo e inferencia real correcta con el secreto
+nuevo. El health check solo no prueba la validez de la nueva clave. El script
+`smoke-genai.py` utiliza el checkpoint local inicial, no consulta automáticamente
+Vault; después de una rotación no lo uses para certificar la clave nueva.
+Nunca pegues valores secretos en variables Terraform o en la consola del plan.
+
+**Dónde:** estrategia de backup OCI y restauración administrada desde Ubuntu.
 
 Respaldar `/home/opc/proyectos`, `/home/opc/.local/share/opencode`, configuración
 de servicio y `/etc/letsencrypt` de forma cifrada. El boot volume se preserva al
 eliminar la VM, pero eso no equivale a un backup independiente. Restaurar en VM
 aislada y verificar ZIP, sesiones y documentos antes de declarar recuperado.
+
+## Actualizar una instalación existente
+
+**Dónde:** mismo stack de Resource Manager para infraestructura; SSH para cambios
+de runtime. Esta sección no ordena ejecutar una actualización ahora.
 
 No realizar `terraform destroy` como procedimiento de actualización. Reaplicar
 el mismo estado es idempotente; no cambiar prefijo/compartimentos para simular

@@ -1,5 +1,7 @@
 # Decisiones e historia revisada
 
+[Inicio](../README.md) · Referencia histórica, no es una guía de ejecución.
+
 Revisión: 17 noviembre 2026. Fuentes: chat del proyecto «Retomar configuración de
 Reversa en», documentos del repositorio local anterior y exportaciones auditadas.
 

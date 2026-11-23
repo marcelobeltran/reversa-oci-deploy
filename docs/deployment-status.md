@@ -1,5 +1,8 @@
 # Registro de despliegue — 18 noviembre 2026
 
+[Inicio](../README.md) · Historia técnica. Para empezar usa
+[Primer uso](01-primer-uso.md) o [Instalación](02-tenant-nuevo.md).
+
 Destino: workshoprever, región principal Chicago. Este registro no publica
 credenciales, OCIDs del cliente ni dirección de acceso.
 
