@@ -1,6 +1,8 @@
 # Alternativa: instalación desde PowerShell en tu PC
 
-[Inicio](../README.md) · **Ruta opcional para Windows.** Para instalar sin herramientas en el PC, usa [Consola OCI y Cloud Shell](02-tenant-nuevo.md).
+[Inicio](../README.md) · [Instalación desde la consola OCI](02-tenant-nuevo.md)
+
+Procedimiento de instalación desde una estación Windows con PowerShell 7.
 
 **Objetivo:** crear base, permisos y aplicación en ese orden. El resultado es una
 URL HTTPS y credenciales para continuar con Primer uso.
