@@ -1,6 +1,7 @@
 """Exercise provisioning control flow with SDK models and mocked cloud clients."""
 import importlib.util
 import json
+import os
 import tempfile
 import types
 import unittest
@@ -81,6 +82,20 @@ class PrepareRuntimeTests(unittest.TestCase):
         self.existing_keys.append(types.SimpleNamespace(display_name='reversa-genai-key'))
         with self.assertRaises(RuntimeError): prepare.main()
         self.ai.create_api_key.assert_not_called()
+
+    def test_cloud_shell_uses_delegated_session_without_user_signing_key(self):
+        token = self.root/'delegation'
+        token.write_text('SYNTHETIC-DELEGATION-ONLY')
+        argv = ['prepare-runtime.py','--outputs',str(self.outputs),'--auth','cloud_shell',
+                '--checkpoint',str(self.checkpoint),'--variables',str(self.variables)]
+        with patch('sys.argv', argv), \
+             patch.dict(os.environ, {'OCI_CLI_CONFIG_FILE':'/etc/oci/config',
+                                     'OCI_CLI_PROFILE':'us-chicago-1',
+                                     'OCI_CLI_DELEGATION_TOKEN_FILE':str(token)}), \
+             patch.object(prepare.oci.auth.signers,'InstancePrincipalsDelegationTokenSigner') as sign:
+            prepare.main()
+            sign.assert_called_once_with(delegation_token='SYNTHETIC-DELEGATION-ONLY')
+        self.assertEqual(len(self.created_secrets),2)
 
 
 if __name__ == '__main__':

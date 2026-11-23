@@ -23,10 +23,22 @@ with tarfile.open(fileobj=buf, mode='w') as tar:
 runtime = gzip.compress(buf.getvalue(), mtime=0)
 (ROOT/'runtime.tar.gz').write_bytes(runtime)
 allowed = [*ROOT.glob('*.tf'), ROOT/'cloud-init.yaml.tftpl', ROOT/'runtime.tar.gz', ROOT/'.terraform.lock.hcl']
+# Console-first installation helpers. Only these explicitly named public files
+# enter the stack ZIP. Never recurse through scripts/, local/, or the checkout.
+allowed += [ROOT/'scripts'/name for name in ['cloud-shell.py', 'prepare-runtime.py', 'smoke-genai.py']]
+allowed += [ROOT/'docs/02-tenant-nuevo.md']
 target = ROOT/'reversa-resource-manager.zip'
 with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
     for path in sorted(allowed):
         if path.exists():
+            archive.writestr(path.relative_to(ROOT).as_posix(), path.read_bytes())
+sample = ROOT/'reversa-prueba.zip'
+with zipfile.ZipFile(sample, 'w', zipfile.ZIP_DEFLATED) as archive:
+    for path in sorted((ROOT/'examples/prueba-app').iterdir()):
+        if path.is_file() and path.name in {'README.md', 'calculadora.py'}:
             archive.writestr(path.name, path.read_bytes())
+checksums = ROOT/'SHA256SUMS'
+checksums.write_text(''.join(hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name+'\n'
+                             for p in [target, sample]), encoding='utf-8')
 print(json.dumps({'runtime_bytes':len(runtime), 'stack_bytes':target.stat().st_size,
                   'stack_sha256':hashlib.sha256(target.read_bytes()).hexdigest()}, indent=2))

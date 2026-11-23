@@ -26,7 +26,7 @@ def main():
     parser.add_argument('--outputs', required=True, type=Path, help='terraform output -json file')
     parser.add_argument('--profile', default='DEFAULT')
     parser.add_argument('--config', default='~/.oci/config')
-    parser.add_argument('--auth', choices=['api_key','security_token'], default='api_key')
+    parser.add_argument('--auth', choices=['api_key','security_token','cloud_shell'], default='api_key')
     parser.add_argument('--region', default='us-chicago-1')
     parser.add_argument('--prefix', default='reversa')
     parser.add_argument('--checkpoint', type=Path, default=Path('local/runtime.private.json'))
@@ -34,13 +34,21 @@ def main():
     args = parser.parse_args()
     os.umask(0o077)
     out = {k:v['value'] for k,v in json.loads(args.outputs.read_text()).items()}
-    config = oci.config.from_file(file_location=str(Path(args.config).expanduser()), profile_name=args.profile)
+    config_file = os.environ.get('OCI_CLI_CONFIG_FILE', args.config) if args.auth == 'cloud_shell' else args.config
+    profile = os.environ.get('OCI_CLI_PROFILE', args.profile) if args.auth == 'cloud_shell' else args.profile
+    config = oci.config.from_file(file_location=str(Path(config_file).expanduser()), profile_name=profile)
     config['region'] = args.region
     kwargs = {}
     if args.auth == 'security_token':
         token = Path(config['security_token_file']).expanduser().read_text()
         private_key = oci.signer.load_private_key_from_file(config['key_file'], config.get('pass_phrase'))
         kwargs['signer'] = oci.auth.signers.SecurityTokenSigner(token, private_key)
+    elif args.auth == 'cloud_shell':
+        token_file = os.environ.get('OCI_CLI_DELEGATION_TOKEN_FILE') or config.get('delegation_token_file')
+        if not token_file:
+            raise RuntimeError('Ejecutar desde OCI Cloud Shell con su sesión delegada activa')
+        kwargs['signer'] = oci.auth.signers.InstancePrincipalsDelegationTokenSigner(
+            delegation_token=Path(token_file).expanduser().read_text().strip())
     ai = oci.generative_ai.GenerativeAiClient(config, **kwargs)
     vault = oci.vault.VaultsClient(config, **kwargs)
     checkpoint = json.loads(args.checkpoint.read_text()) if args.checkpoint.exists() else {}

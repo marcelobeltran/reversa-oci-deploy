@@ -14,7 +14,7 @@ No se publican contraseñas en este repositorio.
 
 | Lugar | Qué harás allí |
 | --- | --- |
-| PowerShell de tu PC | Crear el ZIP de ejemplo |
+| GitHub en el navegador | Descargar el ZIP de ejemplo |
 | Navegador, `https://TU_IP/proyectos/` | Cargar proyectos y consultar archivos |
 | Navegador, `https://TU_IP/` | Abrir OpenCode y conversar con Reversa |
 
@@ -23,18 +23,24 @@ No uses la IP privada de la VM ni añadas `:4096` o `:4100` a la URL.
 
 ## Paso 1. Preparar un ZIP de prueba
 
-**Dónde:** PowerShell de tu PC, en la raíz del clon de este repositorio.
+**Dónde:** GitHub, en el navegador. No necesitas instalar herramientas.
+
+Descarga [reversa-prueba.zip](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest/download/reversa-prueba.zip)
+desde **Assets** de [la publicación](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest).
+
+**Resultado esperado:** el archivo en Descargas, con `README.md` y `calculadora.py`.
+No lo descomprimas: el portal recibe el ZIP. No subas el ZIP de Resource Manager
+como código de proyecto.
+
+Si prefieres construirlo y ya tienes un clon, esta opción es **solo PowerShell
+de tu PC**, desde la raíz del repositorio:
 
 ```powershell
 Compress-Archive -Path .\examples\prueba-app\* -DestinationPath .\reversa-prueba.zip
 ```
 
-**Resultado esperado:** `reversa-prueba.zip` junto al README, con `README.md` y
-`calculadora.py`. Si el ZIP ya existe, usa otro nombre en `-DestinationPath`.
-
-Sin un clon, descarga los dos archivos de
-[examples/prueba-app](../examples/prueba-app), guárdalos juntos y crea un ZIP con
-el Explorador de Windows. No subas el repositorio de despliegue entero.
+Las fuentes están en [examples/prueba-app](../examples/prueba-app). Si ya existe
+un ZIP con ese nombre, utiliza otro nombre en `-DestinationPath`.
 
 ## Paso 2. Entrar al portal
 

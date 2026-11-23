@@ -5,7 +5,7 @@ Elige un recorrido antes de ejecutar comandos:
 | Quiero… | Empiezo en… | Dónde trabajaré |
 | --- | --- | --- |
 | Probar Reversa que ya está instalado | [1. Primer uso](docs/01-primer-uso.md) | Navegador y chat de OpenCode |
-| Instalarlo en un tenant nuevo | [2. Instalación paso a paso](docs/02-tenant-nuevo.md) | Windows PowerShell 7 y consola web OCI |
+| Instalarlo en un tenant nuevo | [2. Instalación paso a paso](docs/02-tenant-nuevo.md) | Navegador, consola OCI y Cloud Shell |
 | Entrar a la VM o resolver un problema | [3. Administración](docs/03-administracion.md) | Consola OCI, PowerShell y SSH a Ubuntu |
 
 **Si ya tienes la URL y quieres analizar un proyecto, comienza por
@@ -18,8 +18,21 @@ qué revisar **si falla**. Ejecuta los pasos en orden y continúa únicamente cu
 obtengas el resultado indicado.
 
 - `/reversa` y `/reversa-docs`: chat de OpenCode en el navegador.
-- `python`, `git` y los scripts de instalación: PowerShell de tu PC.
+- `python3 scripts/cloud-shell.py`: Cloud Shell dentro del navegador OCI.
+- PowerShell local: solo si eliges la ruta alternativa.
 - `sudo` y `systemctl`: dentro de la VM Ubuntu, después de entrar por SSH.
+
+## Descargar los paquetes listos
+
+En [Releases](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest),
+sección **Assets**:
+
+- [ZIP para Resource Manager](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest/download/reversa-resource-manager.zip).
+- [ZIP de ejemplo para el portal](https://github.com/marcelobeltran/reversa-oci-deploy/releases/latest/download/reversa-prueba.zip).
+
+No hace falta clonar el repositorio ni instalar herramientas en tu PC. No uses
+**Code > Download ZIP** como paquete del stack. Sigue [la guía OCI](docs/02-tenant-nuevo.md).
+Funciona igual desde Windows, Linux o macOS porque la preparación corre en Cloud Shell.
 
 ## Qué contiene este repositorio
 
@@ -57,7 +70,9 @@ no a una nueva instalación realizada al editar la documentación.
 | [Fuentes](docs/sources.md) | Referencias externas |
 
 `local/` contiene referencias y credenciales privadas de **un solo tenant**.
-No se publica en GitHub ni se incluye en el ZIP del stack. Para el tenant
-siguiente, usa otro clon y repite la guía desde el principio.
+No se publica en GitHub ni se incluye en el ZIP del stack. En la ruta recomendada
+está dentro de tu carpeta de Cloud Shell. Para el tenant/stack siguiente, extrae
+el paquete en otra carpeta vacía. La [ruta PowerShell local](docs/02-tenant-nuevo-terminal.md)
+es opcional y mantiene un clon independiente por tenant.
 
 Licencia: [MIT](LICENSE).
