@@ -8,7 +8,7 @@ operativa la instalación.
 
 Para revisar la cuota del modelo o pedir más capacidad, sigue
 [Límites de Generative AI](limites-genai.md): procedimiento en la consola OCI,
-valor propuesto de 1.500.000 TPM para Grok 4.6 en Chicago y justificación.
+valor sugerido de 5.000.000 TPM para Grok 4.6 en Chicago y justificación.
 
 ## Revisar certificados IP
 

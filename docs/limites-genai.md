@@ -2,7 +2,11 @@
 
 [Inicio](../README.md) · [Operación](operations.md) · [Administración](03-administracion.md)
 
-## Límite definido para Reversa
+Si Reversa recibe un **HTTP 429** de OCI Generative AI con un mensaje que indica
+que se alcanzó el límite de tokens del modelo, revisa la cuota y sigue estos pasos
+para solicitar una ampliación cuando resulte insuficiente.
+
+## Límite sugerido
 
 | Campo | Valor |
 | --- | --- |
@@ -10,25 +14,11 @@
 | Región | US Midwest (Chicago), `us-chicago-1` |
 | Modelo | Grok 4.6 |
 | Nombre del límite | `grok-4-6-tokens-per-minute-count` |
-| Nuevo valor total a solicitar | **1.500.000 tokens por minuto (TPM)** |
+| Nuevo valor total sugerido | **5.000.000 tokens por minuto (TPM)** |
 | Ámbito | Regional |
 
-El valor se propuso el **23 de octubre de 2026** al revisar una exportación de
-sesión de OpenCode. El pico estimado fue de **879.486 tokens en una ventana de
-60 segundos**, agrupando por inicio de solicitud, con cinco solicitudes. De ese
-total, **859.136 tokens correspondían a caché**. La propuesta de 1.500.000 TPM
-incorpora margen sobre ese pico. La exportación no demuestra cómo OCI contabiliza
-la caché para aplicar la cuota; esa consulta forma parte de la justificación.
-
-**Estado documental al 24 de noviembre de 2026:** propuesta y justificación
-preparadas. El historial revisado no confirma el envío ni la aprobación de la
-solicitud. El valor de esta página es el objetivo solicitado, no una cuota
-aprobada ni una medición de la cuota actual del tenant destino.
-
-Como antecedente, el 20 de octubre de 2026 (hora de Chile) se verificaron
-**200.000 TPM para Grok 4.3**, límite `grok-4-3-tokens-per-minute-count`,
-en Chicago. Es un límite distinto; no se registró un nuevo valor acordado para
-Grok 4.3.
+**5.000.000 TPM es un valor sugerido.** Ajusta la solicitud según el consumo y
+la concurrencia previstos para tu instalación. La aprobación depende de OCI.
 
 ## Paso 1. Revisar el límite del tenant destino
 
@@ -42,8 +32,7 @@ Grok 4.3.
    disponible que muestre la consola.
 
 **Esperado:** límite del modelo y región correctos identificado. Las cuotas deben
-revisarse en cada tenant; el valor histórico de otro modelo no determina el
-límite de Grok 4.6.
+revisarse en cada tenant, para el modelo y la región utilizados por la instalación.
 
 ## Paso 2. Crear la solicitud
 
@@ -51,25 +40,24 @@ límite de Grok 4.6.
 dentro de **Targeted help**.
 
 1. En **General information**, usa un nombre como
-   `Reversa - Grok 4.6 - 1500000 TPM - Chicago` y pega la justificación siguiente.
+   `Reversa - Grok 4.6 - 5000000 TPM - Chicago` y pega la justificación siguiente.
    Si el formulario solicita una suscripción, selecciona la correspondiente al
    despliegue. Pulsa **Next**.
 2. En **Requested items**, pulsa **Add**.
 3. Selecciona **Service: Generative AI** y el límite
    **`grok-4-6-tokens-per-minute-count`**.
-4. Confirma **`us-chicago-1`** como región e introduce **`1500000`** como nuevo
-   valor total del límite.
+4. Confirma **`us-chicago-1`** como región e introduce **`5000000`** como nuevo
+   valor total sugerido del límite, o el valor que requiera tu instalación.
 5. Pulsa **Add → Next**, revisa los datos y envía con **Submit**.
 
 ### Justificación para copiar
 
-> Solicitamos aumentar a 1.500.000 tokens por minuto el límite
+> Solicitamos aumentar a 5.000.000 tokens por minuto el límite
 > grok-4-6-tokens-per-minute-count de Grok 4.6 en us-chicago-1 para análisis y
-> documentación de código con Reversa y OpenCode. Una sesión registró un pico
-> estimado de 879.486 tokens en una ventana móvil de 60 segundos, con cinco
-> solicitudes; 859.136 tokens correspondían a entrada en caché. Necesitamos
-> margen para los flujos de análisis y documentación. Solicitamos confirmar cómo
-> se contabilizan los tokens en caché para esta cuota.
+> documentación de código con Reversa y OpenCode. Estos flujos envían contexto
+> de código y documentación en solicitudes sucesivas y requieren capacidad
+> suficiente para el volumen de trabajo y la concurrencia previstos.
+> Solicitamos confirmar cómo se contabilizan los tokens en caché para esta cuota.
 
 **Esperado:** página de detalle de la solicitud con estado **In Progress**.
 Guarda el identificador o enlace y la fecha de envío. El envío no equivale a la
@@ -95,8 +83,3 @@ amplía la cuota de Generative AI.
 - [OCI: crear una solicitud de aumento de límite](https://docs.oracle.com/en-us/iaas/Content/General/service-limits/create-request.htm).
 - [OCI: Grok 4.6 y límites](https://docs.oracle.com/en-us/iaas/Content/generative-ai/xai-grok-4-6.htm).
 - [OCI: limitación dinámica](https://docs.oracle.com/en-us/iaas/Content/generative-ai/dynamic-throttling.htm).
-
-Ruta del formulario verificada en la documentación oficial el **24 de noviembre
-de 2026**. Los datos de consumo y la propuesta proceden del historial del proyecto
-Reversa, conversación «Retomar configuración de Reversa en», del 23 de octubre
-de 2026.
