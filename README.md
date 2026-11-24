@@ -63,6 +63,7 @@ y el alcance de la instalación de referencia.
 | --- | --- |
 | [Arquitectura](docs/architecture.md) | Diagrama, versiones y componentes |
 | [Operación](docs/operations.md) | Certificados, secretos, backups y actualización |
+| [Límites de Generative AI](docs/limites-genai.md) | Solicitar 1.500.000 TPM para Grok 4.6 en Chicago |
 | [Problemas frecuentes](docs/03-administracion.md#problemas-frecuentes) | Diagnóstico según el error |
 | [Aceptación del 18/11/2026](docs/acceptance.md) | Evidencia y límites de la instalación original |
 | [Registro del despliegue](docs/deployment-status.md) | Historia técnica, no es el punto de partida |

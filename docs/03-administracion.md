@@ -162,7 +162,7 @@ de configuración para diagnosticar un problema de red.
 | Credencial rechazada | Vault `reversa-web` | Verificar versión CURRENT y que Nginx tenga aplicado ese valor; ver Operación |
 | 502 al abrir OpenCode | SSH, salud 4096 | Revisar servicio OpenCode y su acceso a Vault |
 | GenAI 401/403/404 | Prueba mínima y permisos OCI | Revisar clave, política, proyecto, región e ID del modelo |
-| GenAI 429 | Cuotas/capacidad OCI | Esperar y revisar límites. Aumentar RAM de la VM no aumenta cuota de tokens |
+| GenAI 429 | Cuotas/capacidad OCI | Esperar y [revisar o solicitar ampliación de límites](limites-genai.md). Aumentar RAM de la VM no aumenta cuota de tokens |
 | SSH no conecta | Ventana A y Bastion | Revisar IP /32 actual, sesión ACTIVE, clave y destino privado correcto |
 | SSH rechaza permisos de clave Windows | PC, propiedades del archivo privado | Quitar acceso a otros usuarios en Seguridad y conservar acceso de su propietario; no publicar la clave |
 | Reversa espera organización o `INICIAR` | Chat OpenCode | Responder la entrevista del flujo autónomo |

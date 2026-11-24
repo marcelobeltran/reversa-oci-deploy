@@ -6,6 +6,10 @@ Para la primera instalación sigue [Tenant nuevo](02-tenant-nuevo.md). Para usar
 la app sigue [Primer uso](01-primer-uso.md). Esta página se consulta una vez
 operativa la instalación.
 
+Para revisar la cuota del modelo o pedir más capacidad, sigue
+[Límites de Generative AI](limites-genai.md): procedimiento en la consola OCI,
+valor propuesto de 1.500.000 TPM para Grok 4.6 en Chicago y justificación.
+
 ## Revisar certificados IP
 
 Certbot 5.4+ usa perfil `shortlived` y `--ip-address`. El timer comprueba renovación
